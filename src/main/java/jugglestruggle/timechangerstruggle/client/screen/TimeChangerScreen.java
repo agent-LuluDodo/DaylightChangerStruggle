@@ -4,6 +4,7 @@ import jugglestruggle.timechangerstruggle.client.TimeChangerStruggleClient;
 import jugglestruggle.timechangerstruggle.client.config.property.FancySectionProperty;
 import jugglestruggle.timechangerstruggle.client.config.widget.CyclingButtonWidgetCopy;
 import jugglestruggle.timechangerstruggle.client.config.widget.CyclingWidgetConfig;
+import jugglestruggle.timechangerstruggle.client.config.widget.NumericFieldWidgetConfig;
 import jugglestruggle.timechangerstruggle.client.config.widget.WidgetConfigInterface;
 import jugglestruggle.timechangerstruggle.client.widget.ButtonWidgetEx;
 import jugglestruggle.timechangerstruggle.client.widget.CyclingButtonWidgetEx;
@@ -768,6 +769,8 @@ public class TimeChangerScreen extends Screen
 				((SelfWidgetRendererInheritor<?>)elem).getWidgetRenderer().tick();
 			} else if (elem instanceof SwitchGetterBasisBuilderList) {
 				((SwitchGetterBasisBuilderList<?>)elem).tick();
+			} else if (elem instanceof NumericFieldWidgetConfig<?>) {
+				((NumericFieldWidgetConfig<?>)elem).tick();
 			}
 		});
 	}
@@ -2424,7 +2427,9 @@ public class TimeChangerScreen extends Screen
 			children.forEach((elem) -> {
 				if (elem instanceof SelfWidgetRendererInheritor) {
 					((SelfWidgetRendererInheritor<?>)elem).getWidgetRenderer().tick();
-				} 
+				} else if (elem instanceof NumericFieldWidgetConfig<?>) {
+					((NumericFieldWidgetConfig<?>)elem).tick();
+				}
 			});
 		}
 	}

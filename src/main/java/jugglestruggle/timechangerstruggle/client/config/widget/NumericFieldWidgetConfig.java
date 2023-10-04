@@ -1,5 +1,7 @@
 package jugglestruggle.timechangerstruggle.client.config.widget;
 
+import jugglestruggle.timechangerstruggle.client.util.color.AbstractRGB;
+import jugglestruggle.timechangerstruggle.client.util.color.RainbowRGB;
 import jugglestruggle.timechangerstruggle.client.widget.PositionedTooltip;
 import jugglestruggle.timechangerstruggle.config.property.BaseNumber;
 import jugglestruggle.timechangerstruggle.config.property.BaseProperty.ValueConsumer;
@@ -9,6 +11,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.OrderedText;
 
 import net.minecraft.client.font.TextRenderer;
@@ -34,11 +37,13 @@ implements WidgetConfigInterface<BaseNumber<N>, N>, PositionedTooltip
 	
 	private boolean isNewTextValid;
 	private TextRenderer textRenderer;
+	private AbstractRGB textColoring;
 	
 	public NumericFieldWidgetConfig(TextRenderer textRenderer, int width, int height, BaseNumber<N> property) 
 	{
 		super(textRenderer, 18, 18, width, height, Text.literal(property.get().toString()));
 
+		textColoring = RainbowRGB.createColors(0xFFFFFF)[0];
 		this.textRenderer = textRenderer;
 
 		this.property = property;
@@ -49,7 +54,7 @@ implements WidgetConfigInterface<BaseNumber<N>, N>, PositionedTooltip
 		
 		//this.setText();
 		this.initialNumber = this.property.get();
-		
+
 		this.setCursorToStart(false);
 	}
 
@@ -81,9 +86,50 @@ implements WidgetConfigInterface<BaseNumber<N>, N>, PositionedTooltip
 		
 		super.setTextPredicate(theNextPredicate);
 	}
-	
-	
-	
+
+	public void tick() {
+		textColoring.tick();
+	}
+
+	@Override
+	public void renderButton(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+		super.renderButton(drawContext, mouseX, mouseY, delta);
+		if (isFocused()) {
+			if (drawsBackground()) {
+				drawContext.fill(
+						getX() + 1,
+						getY() - textRenderer.fontHeight,
+						getX() + textRenderer.getWidth(property.property()) + 4,
+						getY() + 1,
+						0xFFFFFFFF
+				);
+				drawContext.fill(
+						getX() + 2,
+						getY() - textRenderer.fontHeight + 1,
+						getX() + textRenderer.getWidth(property.property()) + 3,
+						getY() + 1,
+						0xFF000000
+				);
+			}
+			drawContext.drawText(
+					textRenderer,
+					property.property(),
+					getX() + (drawsBackground()? 3 : 2),
+					getY() - textRenderer.fontHeight + (drawsBackground()? 3 : 0),
+					textColoring.getInterpolatedColor(delta),
+					false
+			);
+		} else if (getText().isBlank()) {
+			drawContext.drawText(
+					textRenderer,
+					property.property(),
+					getX() + getWidth() - textRenderer.getWidth(property.property()) - (drawsBackground()? 4 : 0),
+					drawsBackground()? getY() + (height - 8) / 2 : getY(),
+					0xAAAAAA,
+					false
+			);
+		}
+	}
 	
 
 	@Override
