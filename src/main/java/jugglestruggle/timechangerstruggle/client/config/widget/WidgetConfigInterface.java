@@ -5,7 +5,7 @@ import jugglestruggle.timechangerstruggle.config.property.BaseProperty;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
-import net.minecraft.client.util.OrderableTooltip;
+import net.minecraft.client.gui.tooltip.TooltipComponent;
 
 /**
  *
@@ -13,7 +13,7 @@ import net.minecraft.client.util.OrderableTooltip;
  * @implNote Created on 30-Jan-2022, Sunday
  */
 public interface WidgetConfigInterface<B extends BaseProperty<B, V>, V> 
-extends Element, Drawable, Selectable, OrderableTooltip
+extends Element, Drawable, Selectable, TooltipComponent
 {
 	/**
 	 * Gets whether the property set in the widget is valid 

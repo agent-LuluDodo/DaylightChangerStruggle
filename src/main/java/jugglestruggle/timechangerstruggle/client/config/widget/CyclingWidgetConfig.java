@@ -5,7 +5,6 @@ import jugglestruggle.timechangerstruggle.client.widget.SelfWidgetRendererInheri
 import jugglestruggle.timechangerstruggle.config.property.BaseProperty;
 import jugglestruggle.timechangerstruggle.config.property.BooleanValue;
 import jugglestruggle.timechangerstruggle.config.property.EnumValue;
-import jugglestruggle.timechangerstruggle.mixin.client.widget.CyclingButtonWidgetBuilderAccessor;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -13,13 +12,13 @@ import net.fabricmc.api.Environment;
 import java.util.List;
 import java.util.function.Function;
 
-import net.minecraft.text.LiteralText;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.option.SimpleOption;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 
-import net.minecraft.client.gui.screen.ScreenTexts;
-import net.minecraft.client.gui.widget.CyclingButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.screen.ScreenTexts;
 
 import com.google.common.collect.ImmutableList;
 
@@ -28,7 +27,7 @@ import com.google.common.collect.ImmutableList;
  * @implNote Created on 30-Jan-2022, Sunday
  */
 @Environment(EnvType.CLIENT)
-public class CyclingWidgetConfig<B extends BaseProperty<B, T>, T> extends CyclingButtonWidget<T> 
+public class CyclingWidgetConfig<B extends BaseProperty<B, T>, T> extends CyclingButtonWidgetCopy<T>
 implements WidgetConfigInterface<B, T>, SelfWidgetRendererInheritor<CyclingWidgetConfig<B, T>>
 {
 	private final B property;
@@ -40,17 +39,18 @@ implements WidgetConfigInterface<B, T>, SelfWidgetRendererInheritor<CyclingWidge
 	 */
 	private final UpdateCallback<T> externalCallback;
 	
-	protected CyclingWidgetConfig(B property, int width, int height, Text message, Text optionText, 
-		int index, T value, Values<T> values, Function<T, Text> valueToText,
-		Function<CyclingButtonWidget<T>, MutableText> narrationMessageFactory, 
-		UpdateCallback<T> externalCallback, TooltipFactory<T> tooltipFactory, boolean optionTextOmitted)
+	protected CyclingWidgetConfig(
+			B property, int width, int height, Text message, Text optionText,
+			int index, T value, Values<T> values, Function<T, Text> valueToText,
+			Function<CyclingButtonWidgetCopy<T>, MutableText> narrationMessageFactory,
+			UpdateCallback<T> externalCallback, SimpleOption.TooltipFactory<T> tooltipFactory, boolean optionTextOmitted)
 	{
 		super(0, 0, width, height, message, optionText, 
 			index, value, values, valueToText, 
 			narrationMessageFactory, 
 			new SetPropertyValueCallback<B, T>(),
 			tooltipFactory, optionTextOmitted);
-		
+
 		this.property = property;
 		this.initial = property.get();
 		
@@ -124,8 +124,8 @@ implements WidgetConfigInterface<B, T>, SelfWidgetRendererInheritor<CyclingWidge
 		return this.renderer;
 	}
 	@Override
-	public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-		this.renderer.renderButton(matrices, mouseX, mouseY, delta);
+	public void renderButton(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+		this.renderer.renderButton(drawContext, mouseX, mouseY, delta);
 	}
 	
 	
@@ -141,13 +141,13 @@ implements WidgetConfigInterface<B, T>, SelfWidgetRendererInheritor<CyclingWidge
 		final boolean falseTextIsNull = falseText == null;
 		
 		if (trueTextIsNull && falseTextIsNull)
-			valueToText = state -> { return LiteralText.EMPTY; };
+			valueToText = state -> Text.empty();
 		else if (trueTextIsNull)
-			valueToText = state -> { return falseText; };
+			valueToText = state -> falseText;
 		else if (falseTextIsNull)
-			valueToText = state -> { return trueText; };
+			valueToText = state -> trueText;
 		else
-			valueToText = state -> { return state ? trueText : falseText; };
+			valueToText = state -> state ? trueText : falseText;
 		
 		WidgetConfigBuilderBoolean wcbb = new WidgetConfigBuilderBoolean(
 			property, valueToText
@@ -163,7 +163,7 @@ implements WidgetConfigInterface<B, T>, SelfWidgetRendererInheritor<CyclingWidge
 		Function<EV, Text> valueToText = property.getVTT();
 		
 		if (valueToText == null) {
-			valueToText = value -> new LiteralText(value.toString());
+			valueToText = value -> Text.literal(value.toString());
 		}
 		
 		WidgetConfigBuilderEnum<EV> wcbe = new WidgetConfigBuilderEnum<>(property, valueToText);
@@ -173,23 +173,22 @@ implements WidgetConfigInterface<B, T>, SelfWidgetRendererInheritor<CyclingWidge
 		
 		return wcbe;
 	}
-	
-	
-	
-	
-	
+
+	@Override
+	public int getWidth(TextRenderer textRenderer) {
+		return getWidth();
+	}
 
 	protected static class SetPropertyValueCallback<B extends BaseProperty<B, T>, T> implements UpdateCallback<T>
 	{
 		protected SetPropertyValueCallback() { }
 		
 		@Override
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		public void onValueChange(CyclingButtonWidget button, T value) {
+		public void onValueChange(CyclingButtonWidgetCopy<T> button, T value) {
 			((CyclingWidgetConfig<B, T>)button).onValueChanged(value);
 		}
 	}
-	public static class WidgetConfigBuilder<B extends BaseProperty<B, V>, V> extends CyclingButtonWidget.Builder<V>
+	public static class WidgetConfigBuilder<B extends BaseProperty<B, V>, V> extends CyclingButtonWidgetCopy.Builder<V>
 	{
 		public final B propertyRepresented;
 		
@@ -198,19 +197,15 @@ implements WidgetConfigInterface<B, T>, SelfWidgetRendererInheritor<CyclingWidge
 		}
 		
 		@Override
-		@SuppressWarnings("unchecked")
 		public Builder<V> initially(V value)
 		{
-			final CyclingButtonWidgetBuilderAccessor<V> accessor = 
-				(CyclingButtonWidgetBuilderAccessor<V>)this;
+			this.value = value;
 			
-			accessor.setValue(value);
-			
-			int valueIndex = accessor.values().getDefaults().indexOf(value);
+			int valueIndex = this.values.getDefaults().indexOf(value);
 			
 			// means that it doesn't exist
 			if (valueIndex != -1)
-				accessor.setInitialIndex(valueIndex);
+				this.initialIndex = valueIndex;
 				
 			return this;
 		}
@@ -220,31 +215,27 @@ implements WidgetConfigInterface<B, T>, SelfWidgetRendererInheritor<CyclingWidge
 		}
 		public CyclingWidgetConfig<B, V> build(int width, int height, Text optionText, UpdateCallback<V> callback)
 		{
-			@SuppressWarnings("unchecked")
-			final CyclingButtonWidgetBuilderAccessor<V> accessor = 
-			(CyclingButtonWidgetBuilderAccessor<V>)this;
+			List<V> defaults = this.values.getDefaults();
 			
-			List<V> defaults = accessor.values().getDefaults();
+			V startingValue = this.value;
+			startingValue = startingValue == null ? defaults.get(this.initialIndex) : startingValue;
 			
-			V startingValue = accessor.getValue();
-			startingValue = startingValue == null ? defaults.get(accessor.getInitialIndex()) : startingValue;
+			Text messageText = valueToText.apply(startingValue);
 			
-			Text messageText = accessor.getValueToText().apply(startingValue);
-			
-			if (!accessor.omitOptionText())
+			if (!this.optionTextOmitted)
 				messageText = ScreenTexts.composeGenericOptionText(optionText, messageText);
 			
-			return new CyclingWidgetConfig<>(this.propertyRepresented, width, height, messageText, optionText, 
-				accessor.getInitialIndex(), startingValue, accessor.values(), accessor.getValueToText(), 
-				accessor.getNarrationMessageFactory(), callback, accessor.getTooltipFactory(), accessor.omitOptionText());
+			return new CyclingWidgetConfig<>(this.propertyRepresented, width, height, messageText, optionText,
+					this.initialIndex, startingValue, this.values, this.valueToText,
+					this.narrationMessageFactory, callback, this.tooltipFactory, this.optionTextOmitted);
 		}
 		
 		@Override
-		public CyclingButtonWidget<V> build(int x, int y, int width, int height, Text optionText) {
+		public CyclingButtonWidgetCopy<V> build(int x, int y, int width, int height, Text optionText) {
 			return null;
 		}
 		@Override
-		public CyclingButtonWidget<V> build(int x, int y, int width, int height, Text optionText, UpdateCallback<V> callback) {
+		public CyclingButtonWidgetCopy<V> build(int x, int y, int width, int height, Text optionText, UpdateCallback<V> callback) {
 			return null;
 		}
 	}

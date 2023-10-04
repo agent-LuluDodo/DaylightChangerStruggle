@@ -1,6 +1,6 @@
 package jugglestruggle.timechangerstruggle.client.util.render;
 
-import net.minecraft.util.math.Matrix4f;
+import org.joml.Matrix4f;
 
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.GameRenderer;
@@ -24,9 +24,9 @@ public final class RenderUtils
 		int z, int topLeftColor, int topRightColor, int bottomLeftColor, int bottomRightColor)
 	{
 		RenderSystem.enableBlend();
-		RenderSystem.disableTexture();
+		//RenderSystem.disableTexture(); ?? I don't know what this is in newer version
 		RenderSystem.defaultBlendFunc();
-		RenderSystem.setShader(GameRenderer::getPositionColorShader);
+		RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 		
 		final Tessellator tess = Tessellator.getInstance();
 		final BufferBuilder bb = tess.getBuffer();
@@ -41,7 +41,7 @@ public final class RenderUtils
 		
 		tess.draw();
 		
-		RenderSystem.enableTexture();
+		//RenderSystem.enableTexture(); ?? I don't know what this is in newer version
 		RenderSystem.disableBlend();
 	}
 	public static void fillPoint(Matrix4f mat, BufferBuilder bb, int x, int y, int z, int color) 
@@ -63,7 +63,7 @@ public final class RenderUtils
 		if (!adv)
 		{
 			RenderSystem.enableBlend();
-			RenderSystem.disableTexture();
+			//RenderSystem.disableTexture(); ?? I don't know what this is in newer version
 			RenderSystem.defaultBlendFunc();
 		}
 		
@@ -115,7 +115,7 @@ public final class RenderUtils
 		
 		if (!adv)
 		{
-			RenderSystem.enableTexture();
+			//RenderSystem.enableTexture(); ?? I don't know what this is in newer version
 			RenderSystem.disableBlend();
 		}
 	}

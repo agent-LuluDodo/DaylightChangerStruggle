@@ -8,11 +8,12 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import net.minecraft.text.LiteralText;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.OrderedText;
 
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.text.Text;
 
 /**
  *
@@ -32,21 +33,24 @@ implements WidgetConfigInterface<BaseNumber<N>, N>, PositionedTooltip
 	protected Consumer<String> textChangedListener;
 	
 	private boolean isNewTextValid;
+	private TextRenderer textRenderer;
 	
 	public NumericFieldWidgetConfig(TextRenderer textRenderer, int width, int height, BaseNumber<N> property) 
 	{
-		super(textRenderer, 18, 18, width, height, LiteralText.EMPTY);
-		
+		super(textRenderer, 18, 18, width, height, Text.literal(property.get().toString()));
+
+		this.textRenderer = textRenderer;
+
 		this.property = property;
 		this.isNewTextValid = true;
 		
 		this.setChangedListener(null);
 		this.setTextPredicate(null);
 		
-		this.setText(this.property.get().toString());
+		//this.setText();
 		this.initialNumber = this.property.get();
 		
-		this.setCursorToStart();
+		this.setCursorToStart(false);
 	}
 
 	@Override
@@ -137,9 +141,6 @@ implements WidgetConfigInterface<BaseNumber<N>, N>, PositionedTooltip
 	
 	
 	
-	
-	
-	
 	private N getZero() {
 		return NumericFieldWidgetConfig.parseString(this.property.getDefaultValue(), "0");
 	}
@@ -216,6 +217,7 @@ implements WidgetConfigInterface<BaseNumber<N>, N>, PositionedTooltip
 	public List<OrderedText> getOrderedTooltip() {
 		return this.compiledTooltipText;
 	}
+
 	@Override
 	public void setOrderedTooltip(List<OrderedText> textToSet) {
 		this.compiledTooltipText = textToSet;
@@ -231,7 +233,7 @@ implements WidgetConfigInterface<BaseNumber<N>, N>, PositionedTooltip
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected static final <N> N parseString(N n, String val) 
+	protected static final <N> N parseString(N n, String val)
 	{
 		if (n == null || val == null)
 			return null;

@@ -1,6 +1,7 @@
 package jugglestruggle.timechangerstruggle.config.property;
 
 import jugglestruggle.timechangerstruggle.client.config.property.FancySectionProperty;
+import jugglestruggle.timechangerstruggle.client.config.widget.CyclingButtonWidgetCopy;
 import jugglestruggle.timechangerstruggle.client.config.widget.CyclingWidgetConfig;
 import jugglestruggle.timechangerstruggle.client.config.widget.WidgetConfigInterface;
 import jugglestruggle.timechangerstruggle.client.config.widget.CyclingWidgetConfig.WidgetConfigBuilderBoolean;
@@ -8,22 +9,20 @@ import jugglestruggle.timechangerstruggle.client.screen.TimeChangerScreen;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 
 import java.util.Locale;
 
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
-import net.minecraft.client.gui.screen.ScreenTexts;
-import net.minecraft.client.gui.widget.CyclingButtonWidget;
+import net.minecraft.screen.ScreenTexts;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import net.minecraft.text.TranslatableTextContent;
 
 /**
  *
@@ -37,7 +36,7 @@ public class BooleanValue extends BaseProperty<BooleanValue, Boolean>
 	private Text falseText = ScreenTexts.OFF;
 	private Text propertyText;
 	
-	private final CyclingButtonWidget.UpdateCallback<Boolean> callback = (button, value) -> { 
+	private final CyclingButtonWidgetCopy.UpdateCallback<Boolean> callback = (button, value) -> {
 		if (super.consumer != null)
 			super.consumer.consume(this, value);
 	};
@@ -48,7 +47,7 @@ public class BooleanValue extends BaseProperty<BooleanValue, Boolean>
 
 	@Override
 	public void set(Boolean value) {
-		super.value = (value == null) ? false : value;
+		super.value = value != null && value;
 	}
 	
 	public BooleanValue setTrueText(Text text) {
@@ -66,7 +65,7 @@ public class BooleanValue extends BaseProperty<BooleanValue, Boolean>
 	(TimeChangerScreen screen, FancySectionProperty owningSection)
 	{
 		WidgetConfigBuilderBoolean builder = 
-			CyclingWidgetConfig.booleanCycle(this, this.trueText, this.falseText);
+			CyclingWidgetConfig.booleanCycle(this, trueText, falseText);
 		
 		Text optionText;
 		
@@ -78,20 +77,20 @@ public class BooleanValue extends BaseProperty<BooleanValue, Boolean>
 			{
 				Text sectionText = owningSection.get();
 				
-				if (sectionText != null && sectionText instanceof TranslatableText)
+				if (sectionText != null && sectionText instanceof TranslatableTextContent)
 				{
-					optionText = new TranslatableText(String.format("%1$s.%2$s",
-						((TranslatableText)sectionText).getKey(), this.property().toLowerCase(Locale.ROOT)));
+					optionText = Text.translatable(String.format("%1$s.%2$s",
+						((TranslatableTextContent) sectionText.getContent()).getKey(), property().toLowerCase(Locale.ROOT)));
 				}
 			}
 			
 			if (optionText == null)
-				optionText = new LiteralText(this.property());
+				optionText = Text.literal(property());
 		}
 		else
 			optionText = this.propertyText;
 		
-		return builder.build(20, 20, optionText, this.callback);
+		return builder.build(20, 20, optionText, callback);
 	}
 	@Override
 	public ArgumentType<Boolean> onCommandOptionGetArgType() {

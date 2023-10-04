@@ -4,12 +4,11 @@ import jugglestruggle.timechangerstruggle.client.util.color.AbstractRGB;
 import jugglestruggle.timechangerstruggle.client.util.color.RainbowRGB;
 import jugglestruggle.timechangerstruggle.client.util.render.RenderUtils;
 
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.OrderedText;
 
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.util.math.MatrixStack;
 
 /**
  *
@@ -100,7 +99,7 @@ public class SelfWidgetRender<W extends ClickableWidget>
 		}
 	}
 	
-	public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta)
+	public void renderButton(DrawContext drawContext, int mouseX, int mouseY, float delta)
 	{
 		boolean stcwr = false;	
 		int textColor;
@@ -123,16 +122,16 @@ public class SelfWidgetRender<W extends ClickableWidget>
 //				textColor = this.textColoring.getInterpolatedColor(delta);
 				textColor = 0xFF000000;
 				
-				DrawableHelper.fill(matrices, this.widget.x, this.widget.y, 
-					this.widget.x + this.widget.getWidth(), 
-					this.widget.y + this.widget.getHeight(), textColor);
+				drawContext.fill(this.widget.getX(), this.widget.getY(),
+					this.widget.getX() + this.widget.getWidth(),
+					this.widget.getY() + this.widget.getHeight(), textColor);
 				
 			}
 			else
 			{
 				textColor = this.textColoring.getInterpolatedColor(delta);
 				
-				this.fillMyRainbow(matrices, delta, false);
+				fillMyRainbow(drawContext, delta, false);
 			}
 		}
 		else
@@ -140,41 +139,41 @@ public class SelfWidgetRender<W extends ClickableWidget>
 			       textColor = this.widget.active ? 0xFFFFFF : 0xA0A0A0;
 			int enabledColor = this.widget.active ? 0xCC888888 : 0xCC333333;
 			
-			DrawableHelper.fill(matrices, this.widget.x, this.widget.y, 
-				this.widget.x + this.widget.getWidth(), this.widget.y + this.widget.getHeight(), enabledColor);
+			drawContext.fill(this.widget.getX(), this.widget.getY(),
+				this.widget.getX() + this.widget.getWidth(), this.widget.getY() + this.widget.getHeight(), enabledColor);
 		}
 		
 		OrderedText message = this.widget.getMessage().asOrderedText();
 		int messageWidth = this.textRenderer.getWidth(message);
 		
-		final float x = this.widget.x + (this.widget.getWidth() / 2) - (messageWidth / 2);
-		final float y = this.widget.y + ((this.widget.getHeight() - (this.textRenderer.fontHeight - 1)) / 2);
+		final int x = this.widget.getX() + (this.widget.getWidth() / 2) - (messageWidth / 2);
+		final int y = this.widget.getY() + ((this.widget.getHeight() - (this.textRenderer.fontHeight - 1)) / 2);
 		
 		if (!stcwr)
-			this.textRenderer.drawWithShadow(matrices, message, x, y, textColor);
+			drawContext.drawTextWithShadow(textRenderer, message, x, y, textColor);
 	}
 	
-	private void fillMyRainbow(MatrixStack matrices, float delta, boolean adv)
+	private void fillMyRainbow(DrawContext drawContext, float delta, boolean adv)
 	{
 		RenderUtils.rainbowAllTheWay.stripeScale.set(50.0f / 2.0f * this.stripeScale);
-		
+
 		RenderUtils.fillRainbow
 		(
-			matrices, 
-			
-			this.widget.x, this.widget.y, 
-			
-			this.widget.x + this.widget.getWidth(), 
-			this.widget.y + this.widget.getHeight(), 
-			
-			this.widget.getZOffset(),
-			
-			0.0f, 0.0f, 0.0f, 
-			
-			(this.previousRainbowOffset + (this.rainbowOffset - 
-				this.previousRainbowOffset) * delta) / 20.0f,
-			
-			adv
+				drawContext.getMatrices(),
+
+				this.widget.getX(), this.widget.getY(),
+
+				this.widget.getX() + this.widget.getWidth(),
+				this.widget.getY() + this.widget.getHeight(),
+
+				this.widget.getNavigationOrder(),
+
+				0.0f, 0.0f, 0.0f,
+
+				(this.previousRainbowOffset + (this.rainbowOffset -
+						this.previousRainbowOffset) * delta) / 20.0f,
+
+				adv
 		);
 	}
 }

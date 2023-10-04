@@ -2,6 +2,7 @@ package jugglestruggle.timechangerstruggle.client.widget;
 
 import java.util.List;
 
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 
@@ -26,7 +27,7 @@ implements PositionedTooltip, SelfWidgetRendererInheritor<ButtonWidgetEx>
 	public ButtonWidgetEx(int width, int height, Text message, Text tooltipDescText, Text tooltipText, 
 		TextRenderer renderer, PressAction onPress)
 	{
-		super(0, 0, width, height, message, onPress, ButtonWidget.EMPTY);
+		super(0, 0, width, height, message, onPress, ButtonWidget.DEFAULT_NARRATION_SUPPLIER);
 		this.updateTooltip(tooltipDescText, tooltipText, renderer);
 		this.renderer = new SelfWidgetRender<>(this, renderer);
 	}
@@ -63,7 +64,7 @@ implements PositionedTooltip, SelfWidgetRendererInheritor<ButtonWidgetEx>
 	}
 	
 	@Override
-	public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-		this.renderer.renderButton(matrices, mouseX, mouseY, delta);
+	public void renderButton(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+		this.renderer.renderButton(drawContext, mouseX, mouseY, delta);
 	}
 }

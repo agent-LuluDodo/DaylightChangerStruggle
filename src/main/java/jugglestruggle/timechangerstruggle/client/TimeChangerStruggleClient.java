@@ -17,6 +17,7 @@ import jugglestruggle.timechangerstruggle.mixin.client.world.ClientWorldMixin;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 
@@ -27,6 +28,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.networking.v1.ServerLoginConnectionEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 
@@ -326,8 +329,8 @@ public class TimeChangerStruggleClient implements ClientModInitializer
 		
 		// Then create the commands...
 		TimeChangerStruggleClient.commands = new Commands();
-		TimeChangerStruggleClient.commands.registerCommands();
-		
+		ClientCommandRegistrationCallback.EVENT.register(commands::registerCommands);
+
 		// Add fabric events for use in creating a shader, keyboard detection 
 		// and in ticking the cycle types
 		ClientLifecycleEvents.CLIENT_STARTED.register(this::onClientStart);

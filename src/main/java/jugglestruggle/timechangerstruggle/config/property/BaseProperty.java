@@ -7,7 +7,7 @@ import jugglestruggle.timechangerstruggle.daynight.DayNightCycleBasis;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 
 import com.google.gson.JsonElement;
 import com.mojang.brigadier.arguments.ArgumentType;

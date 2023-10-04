@@ -1,0 +1,12 @@
+/help
+/test runfailed
+/test runall
+/time set noon
+/daylightchanger cycle randomizers use
+/daylightchanger cycle randomizers option
+/daylightchanger option butterySmoothCycle true
+/daylightchanger cycle randomizers option
+/daylightchanger
+/timechanger worldtime
+/timechanger cycle randomizers use
+/timechanger worldtime false

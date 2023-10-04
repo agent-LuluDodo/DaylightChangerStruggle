@@ -4,9 +4,7 @@ import jugglestruggle.timechangerstruggle.daynight.DayNightCycleBasis;
 import jugglestruggle.timechangerstruggle.daynight.DayNightCycleBuilder;
 import jugglestruggle.timechangerstruggle.daynight.DayNightGetterType;
 
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 import net.minecraft.client.world.ClientWorld;
 
@@ -53,11 +51,11 @@ public class ShrugTime implements DayNightCycleBasis
 		
 		@Override
 		public Text getTranslatableName() {
-			return new LiteralText("¯\\_(ツ)_/¯");
+			return Text.literal("¯\\_(ツ)_/¯");
 		}
 		@Override
 		public Text getTranslatableDescription() {
-			return new TranslatableText("jugglestruggle.tcs.dnt.shrugtime.description");
+			return Text.translatable("jugglestruggle.tcs.dnt.shrugtime.description");
 		}
 	}
 }

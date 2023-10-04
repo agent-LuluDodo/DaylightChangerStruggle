@@ -1,6 +1,7 @@
 package jugglestruggle.timechangerstruggle.config.property;
 
 import jugglestruggle.timechangerstruggle.client.config.property.FancySectionProperty;
+import jugglestruggle.timechangerstruggle.client.config.widget.CyclingButtonWidgetCopy;
 import jugglestruggle.timechangerstruggle.client.config.widget.CyclingWidgetConfig;
 import jugglestruggle.timechangerstruggle.client.config.widget.WidgetConfigInterface;
 import jugglestruggle.timechangerstruggle.client.config.widget.CyclingWidgetConfig.WidgetConfigBuilderEnum;
@@ -10,7 +11,7 @@ import jugglestruggle.timechangerstruggle.util.InterchangeableFunction;
 import net.fabricmc.api.EnvType;
 
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -19,11 +20,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-
-import net.minecraft.client.gui.widget.CyclingButtonWidget;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonElement;
@@ -34,6 +31,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import net.minecraft.text.TranslatableTextContent;
 
 /**
  *
@@ -49,7 +47,7 @@ public class EnumValue<EV extends Enum<EV>> extends BaseProperty<EnumValue<EV>, 
 	protected Predicate<EV> validatePredicate;
 	protected InterchangeableFunction<EV, String> readableFunc;
 	
-	private final CyclingButtonWidget.UpdateCallback<EV> callback = (button, value) -> { 
+	private final CyclingButtonWidgetCopy.UpdateCallback<EV> callback = (button, value) -> {
 		if (super.consumer != null)
 			super.consumer.consume(this, value);
 	};
@@ -134,15 +132,15 @@ public class EnumValue<EV extends Enum<EV>> extends BaseProperty<EnumValue<EV>, 
 		{
 			Text sectionText = owningSection.get();
 			
-			if (sectionText != null && sectionText instanceof TranslatableText)
+			if (sectionText != null && sectionText instanceof TranslatableTextContent)
 			{
-				optionText = new TranslatableText(String.format("%1$s.%2$s",
-					((TranslatableText)sectionText).getKey(), this.property().toLowerCase(Locale.ROOT)));
+				optionText = Text.translatable(String.format("%1$s.%2$s",
+					((TranslatableTextContent)sectionText.getContent()).getKey(), this.property().toLowerCase(Locale.ROOT)));
 			}
 		}
 		
 		if (optionText == null)
-			optionText = new LiteralText(this.property());
+			optionText = Text.literal(this.property());
 		
 //		if (this.propertyText == null)
 //			optionText = new LiteralText(this.property());

@@ -7,11 +7,12 @@ import net.fabricmc.api.Environment;
 
 import java.util.List;
 
+import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.util.OrderableTooltip;
+;
 
 import com.google.common.collect.ImmutableList;
 
@@ -22,14 +23,21 @@ import com.google.common.collect.ImmutableList;
  * @implNote Created on 06-Feb-2022, Sunday
  */
 @Environment(EnvType.CLIENT)
-public interface PositionedTooltip extends OrderableTooltip
+public interface PositionedTooltip extends TooltipComponent
 {
 	int getTooltipWidth();
+	default int getWidth(TextRenderer textRenderer) {
+		return getTooltipWidth();
+	}
 	int getTooltipHeight();
+	default int getHeight() {
+		return getTooltipHeight();
+	}
 	
 	void setTooltipWidth(int width);
 	void setTooltipHeight(int height);
-	
+
+	List<OrderedText> getOrderedTooltip();
 	void setOrderedTooltip(List<OrderedText> textToSet);
 	
 	default void updateTooltip(Text tooltipDescText, Text tooltipText, TextRenderer renderer)
@@ -38,7 +46,7 @@ public interface PositionedTooltip extends OrderableTooltip
 		final boolean tooltipIsNull = tooltipText == null;
 		
 		List<OrderedText> compiledTooltipText;
-		
+
 		if (descIsNull && tooltipIsNull) {
 			compiledTooltipText = ImmutableList.of();
 		} 
@@ -60,7 +68,7 @@ public interface PositionedTooltip extends OrderableTooltip
 		}
 		
 		final int[] offsetPos = TimeChangerScreen.getTooltipForWidgetWidthHeight(compiledTooltipText, renderer);
-		this.setTooltipWidth(offsetPos[0]); this.setTooltipHeight(offsetPos[1]); 
+		this.setTooltipWidth(offsetPos[0]); this.setTooltipHeight(offsetPos[1]);
 		
 		this.setOrderedTooltip(compiledTooltipText);
 	}
